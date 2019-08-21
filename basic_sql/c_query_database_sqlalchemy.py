@@ -1,6 +1,6 @@
 # # Use `sqlalchemy` to pull data out of SQL into a `pandas` dataframe
 #
-# You would use this approach if you want the query result returned in a `pandas.DataFrame`
+# You would use this approach over `psycopg2` if you want the query result returned in a `pandas.DataFrame`
 
 import pandas as pd
 import sqlalchemy
