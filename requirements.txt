@@ -1,0 +1,6 @@
+geopandas
+seaborn
+psycopg2
+geoalchemy2
+xlrd
+xlsxwriter
