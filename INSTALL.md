@@ -29,7 +29,7 @@ These instructions were tested on 8/21/2019 using Windows 10 and macOS 10.14.6.
 
 #### SQL Databases
 ```shell script
-(teaching) conda install -c conda-forge pyscopg2
+(teaching) conda install -c conda-forge psycopg2
 (teaching) conda install -c conda-forge geoalchemy2
 ```
 
