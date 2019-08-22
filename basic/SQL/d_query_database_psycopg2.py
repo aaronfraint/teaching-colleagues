@@ -32,7 +32,7 @@ total = total_result[0]
 weapons_found = weapon_result[0]
 
 # Use basic python to get the percentage of stops that resulted in the officer finding a gun
-percent_with_weapons = float(weapons_found) / float(total) * 100
+percent_with_weapons = weapons_found / total * 100
 percent_without_weapons = 100 - percent_with_weapons
 percent_without_weapons = round(percent_without_weapons, 2)
 
