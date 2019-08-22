@@ -1,11 +1,16 @@
 # teaching-colleagues
 using Python, SQL, PostGIS, and others!
 
-## Learning Path
+## "`basic`" content:
+- Pure python topics:
+    - datetime
+    - list comprehension
 - Use `pandas` to load data from a variety of sources
-- Use `psycopg2` to make a new PostgreSQL database
-- Use `sqlalchemy` to write a `pandas` dataframe to SQL
-- Query data stored within a SQL database
+- SQL
+    - Use `psycopg2` to make a new PostgreSQL database
+    - Use `sqlalchemy` to write a `pandas` dataframe to SQL
+    - Query data stored within a SQL database
+
 
 
 ## Setup
