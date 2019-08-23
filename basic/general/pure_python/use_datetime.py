@@ -20,7 +20,7 @@ print(timestamp_str)
 # +
 # Extract date and time
 the_date, the_time = timestamp_str.split(" ")
-print(the_day)
+print(the_date)
 print(the_time)
 
 # Omit the miliseconds in the time
