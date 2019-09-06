@@ -26,9 +26,10 @@
 # +
 import pandas as pd
 import os
-import datetime as datetime
+import csv
 
-data_folder = r"C:\Users\ryantaylorgratzer\Documents\Active_Projects\Data Science\Counts\Counts\Count Reports 6-17-19"
+
+data_folder = r"C:\Egnyte\Shared\PROJECTS\2018\00-2018-205 Santa Clara CA Pedestrian Master Plan\Products\Counts\Count Reports 6-17-19"
 test_file = os.path.join(data_folder, "1 LICK MILL BLVD & TASMAN DR.xls")
 # -
 
@@ -44,7 +45,7 @@ print(df['start_time'])
 
 
 # +
-# Make a variable that will hold the total across all "Peds" columns
+# Make variables that will hold the totals across all "Peds" columns
 running_total = 0
 morning_peak = 0
 midday = 0
@@ -63,51 +64,38 @@ for col in ped_cols:
 print(running_total)
 
 # +
-# For each column, get the sum of morning peak rows (7-10am) and add it to the morning peak total
+# For each column, get the sum of hours within a given time bucket
+
+MORNING_START = 7
+MORNING_END = 9
+
 for col in ped_cols:
     
-    col_total = df.loc[(df['start_time'] >= 7) & (df['start_time'] <= 9)]
+    filtered_df = df.loc[(df['start_time'] >= MORNING_START) & (df['start_time'] <= MORNING_END)]
     
-    col_total = col_total[col].sum()
+    col_total = filtered_df[col].sum()
                                    
     morning_peak += col_total
         
 print(morning_peak)
 
-# +
-# For each column, get the sum of midday rows (10am-3pm) and add it to the midday total
-for col in ped_cols:
-    
-    col_total = df.loc[(df['start_time'] >= 10) & (df['start_time'] <= 14)]
-    
-    col_total = col_total[col].sum()
-
-    midday += col_total
-        
-print(midday)
-
-# +
-# For each column, get the sum of evening peak rows (3pm-6pm) and add it to the evening peak total
-for col in ped_cols:
-    col_total = df.loc[(df['start_time'] >= 15) & (df['start_time'] <= 18)]
-    
-    col_total = col_total[col].sum()
-
-    evening_peak += col_total
-        
-print(evening_peak)
-
 
 # -
 
 # ### Once you have a working solution, compartmentalize it within a function:
-#
-# Notice that I've left a few ``TODO`` items in there. Figure out how to add those in after you've reviewed the code
 
 # +
 # Now do all the above as a function
 
 def get_ped_total(excel_count_file):
+
+    # This dictionary defines a set of time bucket names and their start/end hours
+    time_buckets = [
+        ("am_peak", 7, 10),
+        ("midday", 11, 14),
+        ("pm_peak", 15, 18)
+    ]
+    
     # Read the file starting at line 10
     df = pd.read_excel(excel_count_file, sheet_name="Vehicles", header=9)
     
@@ -118,63 +106,67 @@ def get_ped_total(excel_count_file):
     df['start_time'] = pd.to_datetime(df['start_time']).dt.hour
 
     # Make variables that will hold the totals (for different time buckets) across all "Peds" columns
-    daily_total = 0
-    morning_peak = 0
-    midday = 0
-    evening_peak = 0
-
+    totals = {
+        "daily": 0,
+        "am_peak": 0,
+        "midday": 0,
+        "pm_peak": 0
+    }
+    
     # Get a list of all "Peds" column names
     ped_cols = [x for x in df.columns if "Peds" in x]
 
     # For each column, get the sum and add it to the daily total
     for col in ped_cols:
+
+        # Get the daily total
         col_total = df[col].sum()
 
-        daily_total += col_total
+        totals["daily"] += col_total
         
-    # parse out a few time buckets (i.e. AM peak, midday, PM peak)
-    
-    # For each column, get the sum of morning peak rows (7-10am) and add it to the morning peak total
-    for col in ped_cols:
-        col_total = df.loc[(df['start_time'] >= 7) & (df['start_time'] <= 9)]
-    
-        col_total = col_total[col].sum()
+        # parse out a few time buckets (i.e. AM peak, midday, PM peak)
+        for bucket_name, start_hour, end_hour in time_buckets:
+            
+            # filtered the dataframe to this bucket's start/end hours
+            filtered_df = df.loc[(df['start_time'] >= start_hour) & (df['start_time'] <= end_hour)]
 
-        morning_peak += col_total
-    
-    # For each column, get the sum of midday rows (10am-3pm) and add it to the midday total
-    for col in ped_cols:
-        col_total = df.loc[(df['start_time'] >= 10) & (df['start_time'] <= 14)]
-    
-        col_total = col_total[col].sum()
-
-        midday += col_total
-    
-    # For each column, get the sum of evening peak rows (3pm-6pm) and add it to the evening peak total
-    for col in ped_cols:
-        col_total = df.loc[(df['start_time'] >= 15) & (df['start_time'] <= 18)]
-    
-        col_total = col_total[col].sum()
-
-        evening_peak += col_total
-    
-    # modify the return value so that the function returns the daily total along with the time bucket totals
-    
-    return daily_total, morning_peak, midday, evening_peak
+            # Sum the filtered table and add to the appropriate total key
+            bucket_total = filtered_df[col].sum()
+            totals[bucket_name] += bucket_total
+            
+    return totals
 
 
 # -
 
 # ### Now we're ready to iterate over all Excel files and pull results out
 
-for f in os.listdir(data_folder):
-    xls_path = os.path.join(xlsx_folder, f)
-    total = get_ped_total(xls_path)
-    
-    print(total, f)
+# +
+results = []
+results.append( ["joinid", "location", "ped_vol"] )
 
-# # ``TODO``
-#
-# - Iterate over all files, getting full day and time bucket data
-# - Wrangle all results into a ``pandas.DataFrame``. Each location (/excel file) becomes a row in this table.
-# - Save this dataframe to ``.csv``
+for f in os.listdir(data_folder):
+    if f[-4:] == ".xls":
+
+        # Get info about location for summary table
+        text_list = f.split(" ")
+        location_id = text_list[0]
+        place_name = " ".join(text_list[1:]).replace(".xls", "")
+
+        xls_path = os.path.join(folder_path, f)
+        totals = get_ped_total(xls_path)
+        daily = totals["daily"]
+
+        results.append( [location_id, place_name, daily] )
+# -
+
+# ### Write the results to CSV file using the ``csv`` module
+
+# +
+output = os.path.join(data_folder, "test_output.csv")
+
+with open(output, "w", newline='') as csvfile:
+
+    writer = csv.writer(csvfile)
+    for row in results:
+        writer.writerow(row)
