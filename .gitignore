@@ -106,6 +106,3 @@ venv.bak/
 
 # PyCharm
 .idea
-
-# Jupyter notebooks
-.ipynb
