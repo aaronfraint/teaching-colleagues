@@ -71,6 +71,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # pyenv
 .python-version
@@ -105,6 +106,3 @@ venv.bak/
 
 # PyCharm
 .idea
-
-# Jupyter notebooks
-.ipynb

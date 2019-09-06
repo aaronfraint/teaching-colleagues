@@ -26,8 +26,9 @@
 # +
 import pandas as pd
 import os
+import datetime as datetime
 
-data_folder = "/Users/aaronfraint/Downloads/Count Reports 6-17-19"
+data_folder = r"C:\Users\ryantaylorgratzer\Documents\Active_Projects\Data Science\Counts\Counts\Count Reports 6-17-19"
 test_file = os.path.join(data_folder, "1 LICK MILL BLVD & TASMAN DR.xls")
 # -
 
@@ -35,8 +36,19 @@ test_file = os.path.join(data_folder, "1 LICK MILL BLVD & TASMAN DR.xls")
 df = pd.read_excel(test_file, sheet_name="Vehicles", header=9)
 
 # +
+#rename the Start Time column to start_time, and convert the times to hours, since that's all we need for the buckets
+df.rename(columns = {'Start Time':'start_time'}, inplace = True)
+df['start_time'] = pd.to_datetime(df['start_time']).dt.hour
+
+print(df['start_time'])
+
+
+# +
 # Make a variable that will hold the total across all "Peds" columns
 running_total = 0
+morning_peak = 0
+midday = 0
+evening_peak = 0
 
 # Get a list of all "Peds" column names
 ped_cols = [x for x in df.columns if "Peds" in x]
@@ -49,6 +61,41 @@ for col in ped_cols:
     running_total += col_total
         
 print(running_total)
+
+# +
+# For each column, get the sum of morning peak rows (7-10am) and add it to the morning peak total
+for col in ped_cols:
+    
+    col_total = df.loc[(df['start_time'] >= 7) & (df['start_time'] <= 9)]
+    
+    col_total = col_total[col].sum()
+                                   
+    morning_peak += col_total
+        
+print(morning_peak)
+
+# +
+# For each column, get the sum of midday rows (10am-3pm) and add it to the midday total
+for col in ped_cols:
+    
+    col_total = df.loc[(df['start_time'] >= 10) & (df['start_time'] <= 14)]
+    
+    col_total = col_total[col].sum()
+
+    midday += col_total
+        
+print(midday)
+
+# +
+# For each column, get the sum of evening peak rows (3pm-6pm) and add it to the evening peak total
+for col in ped_cols:
+    col_total = df.loc[(df['start_time'] >= 15) & (df['start_time'] <= 18)]
+    
+    col_total = col_total[col].sum()
+
+    evening_peak += col_total
+        
+print(evening_peak)
 
 
 # -
@@ -63,9 +110,18 @@ print(running_total)
 def get_ped_total(excel_count_file):
     # Read the file starting at line 10
     df = pd.read_excel(excel_count_file, sheet_name="Vehicles", header=9)
+    
+    #rename the Start Time column to start_time
+    df.rename(columns = {'Start Time':'start_time'}, inplace = True)
+    
+    #convert the times to hours, since that's all we need for the buckets
+    df['start_time'] = pd.to_datetime(df['start_time']).dt.hour
 
-    # Make a variable that will hold the total across all "Peds" columns
+    # Make variables that will hold the totals (for different time buckets) across all "Peds" columns
     daily_total = 0
+    morning_peak = 0
+    midday = 0
+    evening_peak = 0
 
     # Get a list of all "Peds" column names
     ped_cols = [x for x in df.columns if "Peds" in x]
@@ -76,13 +132,35 @@ def get_ped_total(excel_count_file):
 
         daily_total += col_total
         
-    # TODO: parse out a few time buckets (i.e. AM peak, midday, PM peak)
-    # ...
+    # parse out a few time buckets (i.e. AM peak, midday, PM peak)
     
-    # TODO: modify the return value so that the function returns the daily total along with the time bucket totals
-    # ...
+    # For each column, get the sum of morning peak rows (7-10am) and add it to the morning peak total
+    for col in ped_cols:
+        col_total = df.loc[(df['start_time'] >= 7) & (df['start_time'] <= 9)]
     
-    return daily_total
+        col_total = col_total[col].sum()
+
+        morning_peak += col_total
+    
+    # For each column, get the sum of midday rows (10am-3pm) and add it to the midday total
+    for col in ped_cols:
+        col_total = df.loc[(df['start_time'] >= 10) & (df['start_time'] <= 14)]
+    
+        col_total = col_total[col].sum()
+
+        midday += col_total
+    
+    # For each column, get the sum of evening peak rows (3pm-6pm) and add it to the evening peak total
+    for col in ped_cols:
+        col_total = df.loc[(df['start_time'] >= 15) & (df['start_time'] <= 18)]
+    
+        col_total = col_total[col].sum()
+
+        evening_peak += col_total
+    
+    # modify the return value so that the function returns the daily total along with the time bucket totals
+    
+    return daily_total, morning_peak, midday, evening_peak
 
 
 # -
