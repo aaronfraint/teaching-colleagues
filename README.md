@@ -2,6 +2,7 @@
 
 ## Python content
 - general usage
+    - `csv` module
     - `datetime` module
     - `list` comprehension
 - `pandas` usage
@@ -9,6 +10,7 @@
     - merge multiple files
     - filter dataframes
     - aggregate dataframes
+    - plot dataframes with `seaborn`
 - `SQL` through Python
     - Use `psycopg2` to make a new PostgreSQL database
     - Use `sqlalchemy` to write a `pandas` dataframe to SQL
@@ -18,7 +20,7 @@
 ## Setup
 
 If you don't have `conda` on your computer, follow [this link](https://docs.conda.io/en/latest/miniconda.html)
-and download/install miniconda.
+and download/install the latest version of `miniconda`.
 Make sure to use the version that matches your operating system and bit size.
 
 To install a Python environment with all necessary dependencies, execute the following command:
@@ -27,7 +29,7 @@ To install a Python environment with all necessary dependencies, execute the fol
 (base) $ conda env create -f env.yml
 ```
 
-This command installed all of the modules listed in [`env.yml`](env.yml)
+This command installs all of the modules listed in [`env.yml`](env.yml)
 
 Now that you've created the environment, you can activate it and start using notebooks with the following commands:
 
