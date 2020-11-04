@@ -1,4 +1,4 @@
-# postgis_helpers
+# [`postgis_helpers`](https://github.com/aaronfraint/postgis-helpers)
 
 This module faciltates interactions with PostgreSQL databases and both spatial / non-spatial data.
 
